@@ -54,7 +54,7 @@ export function dingtalkKind(getConfig: () => DingtalkConfig | undefined, state?
     schema: DingtalkConfigSchema, health: ['dingtalk', 'dingtalk-bot'], fields: [
       { key: 'cli', type: 'text', advanced: true, label: { zh: 'dws CLI', en: 'dws CLI' } },
       { key: 'profile', type: 'text', advanced: true, label: { zh: '组织 Profile', en: 'Organization profile' }, hint: { zh: '留空使用当前组织。', en: 'Leave empty to use the current organization.' } },
-      { key: 'chats', type: 'rows', advanced: true, label: { zh: '手动填写群 ID', en: 'Manual group IDs' }, columns: [{ key: 'id', type: 'text', label: { zh: 'openConversationId', en: 'openConversationId' } }] },
+      { key: 'chats', type: 'rows', advanced: true, label: { zh: '按 ID 添加接收群', en: 'Add receiving groups by ID' }, hint: { zh: '与上方“接收的群”是同一份名单，无需重复填写。仅在按群名找不到群时，填写钉钉群 ID（openConversationId，通常以 cid 开头）。添加后通过个人账号接收该群的新消息；删除也会从上方名单移除。修改后请保存。', en: 'This is the same list as Receiving groups above; no duplicate setup is needed. Use a DingTalk group ID (openConversationId, usually starting with cid) only when name search cannot find the group. Added groups supply new messages through your personal account; removing a group also removes it from the list above. Save your changes to apply.' }, columns: [{ key: 'id', type: 'text', label: { zh: 'openConversationId', en: 'openConversationId' } }] },
       { key: 'mentions', type: 'switch', label: { zh: '接收跨群 @我', en: 'Receive account mentions' }, hint: { zh: '仅用于分析，不授予任务执行。', en: 'Analysis only; does not grant task execution.' } },
       { key: 'directMessages', type: 'switch', label: { zh: '接收当前账号全部私聊', en: 'Receive all account direct messages' } },
       { key: 'prefix', type: 'text', advanced: true, label: { zh: '明确指令前缀', en: 'Explicit command prefix' } },
