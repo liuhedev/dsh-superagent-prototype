@@ -49,8 +49,10 @@ function SourceCard({ source }: { source: SourceView }) {
       </div>}
       {!source.installed && <Hint>{t('sourceNotInstalledHint')}</Hint>}
       {source.installed && source.kind === 'dingtalk' && <DingtalkSetup config={value.config} saved={saved.config}
-        onChange={config => draft.edit({ ...value, config })} />}
-      {source.installed && source.fields.filter(spec => !spec.advanced).map(field)}
+        onChange={config => draft.edit({ ...value, config })}
+        personalFields={source.fields.filter(spec => !spec.advanced && !['botReplies', 'replies'].includes(spec.key)).map(field)}
+        robotFields={source.fields.filter(spec => !spec.advanced && ['botReplies', 'replies'].includes(spec.key)).map(field)} />}
+      {source.installed && source.kind !== 'dingtalk' && source.fields.filter(spec => !spec.advanced).map(field)}
       {source.installed && advanced.length > 0 && <DisclosureRow icon={<Icon name="settings" />} title={t('advanced')} open={advancedOpen}
         onToggle={() => setAdvancedOpen(!advancedOpen)}>
         <div className="dt-disclosure-body">{advanced.map(field)}</div>

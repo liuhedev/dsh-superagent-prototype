@@ -61,7 +61,7 @@ export function dingtalkKind(getConfig: () => DingtalkConfig | undefined, state?
       { key: 'botAppId', type: 'text', advanced: true, label: { zh: '机器人应用 ID（自动填写）', en: 'Robot application ID (filled automatically)' } },
       { key: 'botReplies', type: 'switch', label: { zh: '允许回复机器人私聊（不授予任务执行）', en: 'Reply to robot private chats (no execution grant)' } },
       { key: 'robotCode', type: 'text', advanced: true, label: { zh: 'robotCode（自动填写）', en: 'robotCode (filled automatically)' } },
-      { key: 'replies', type: 'switch', label: { zh: '允许机器人回复所选群', en: 'Allow robot replies in selected groups' } },
+      { key: 'replies', type: 'switch', label: { zh: '允许机器人回复个人账号所选群', en: 'Allow robot replies in selected groups' } },
     ], scope: ({ meta }, c) => meta.bot === true
       ? c.botAppId && meta.robotCode === c.robotCode ? { listened: true, observed: true, row: 'all' } : { listened: false, reason: 'bot_messages_not_allowed' }
       : meta.mentioned === true

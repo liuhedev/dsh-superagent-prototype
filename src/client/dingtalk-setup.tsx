@@ -1,11 +1,12 @@
 /** Name-based DingTalk setup. Selection edits the existing draft; only Save changes the receiving scope. */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { DingtalkDiscovery } from '../sources/dingtalk-discovery.ts'
 import { Button, Icon, Input } from './controls.tsx'
 import { usePanel } from './provider.tsx'
 import { errorText } from './text.ts'
 
-export function DingtalkSetup({ config, saved, onChange }: {
+export function DingtalkSetup({ config, saved, onChange, personalFields, robotFields }: {
+  personalFields: ReactNode; robotFields: ReactNode;
   config: Record<string, unknown>; saved: Record<string, unknown>; onChange: (config: Record<string, unknown>) => void
 }) {
   const { t, call } = usePanel()
@@ -49,7 +50,7 @@ export function DingtalkSetup({ config, saved, onChange }: {
   const selected = robots.find(robot => robot.id === config.botAppId && robot.robotCode === config.robotCode)
   return <div className="dt-field">
     <div className="dt-subhead">
-      <span className="dt-field-head">{text('账号与接收范围', 'Account and receiving scope')}</span>
+      <span className="dt-field-head">{text('个人账号消息（DWS）', 'Personal account messages (DWS)')}</span>
       <Button variant="ghost" size="sm" icon={<Icon name="refresh" />} disabled={busy || accountChanged}
         aria-busy={busy} onClick={() => { void refresh() }}>
         {busy ? text('正在读取…', 'Loading…') : text('读取账号和机器人', 'Load account and robots')}
@@ -61,24 +62,6 @@ export function DingtalkSetup({ config, saved, onChange }: {
         'Load lists using the signed-in dws account. No authorization ID is needed. Sign in with dws first; select another organization in Advanced.')}</p>
     {error && <p className="dt-error" role="status">{text('读取失败：', 'Loading failed: ')}{error}</p>}
     {data?.warnings.map(warning => <p className="dt-hint" key={warning}>{warning}</p>)}
-    <label className="dt-field">
-      <span className="dt-field-head">{text('使用的机器人', 'Robot to use')}</span>
-      <select className="dt-select" aria-label={text('使用的机器人', 'Robot to use')}
-        disabled={busy || accountChanged || !data} value={selected?.id ?? (config.botAppId ? String(config.botAppId) : '')}
-        onChange={event => {
-          const robot = robots.find(item => item.id === event.target.value)
-          onChange({ ...config, botAppId: robot?.id ?? '', robotCode: robot?.robotCode ?? '',
-            ...(!robot ? { botReplies: false, replies: false } : {}) })
-        }}>
-        <option value="">{text('不使用机器人', 'Do not use a robot')}</option>
-        {Boolean(config.botAppId) && !selected && <option value={String(config.botAppId)} disabled>
-          {text('已配置机器人（读取列表以核对名称）', 'Configured robot (load the list to verify its name)')}
-        </option>}
-        {robots.map(robot => <option key={robot.id} value={robot.id}>{robot.name}</option>)}
-      </select>
-    </label>
-    <p className="dt-hint">{text('选择机器人后会自动填写对应应用信息；不会自动开启回复。应用列表只显示已发布且当前账号可读取的机器人。',
-      'Choosing a robot fills its application details. Reply switches remain explicit. Lists include published robot applications readable by this account.')}</p>
     <div className="dt-subhead"><span className="dt-field-head">{text('接收的群', 'Receiving groups')} <span className="dt-count">{groups.length}</span></span></div>
     <div className="dt-row">
       <Input className="dt-row-main" aria-label={text('要添加的群名', 'Group name to add')} maxLength={100}
@@ -109,7 +92,32 @@ export function DingtalkSetup({ config, saved, onChange }: {
       <Button variant="ghost" size="sm" icon={<Icon name="dismiss" />} aria-label={text('移除接收群', 'Remove receiving group')}
         onClick={() => onChange({ ...config, chats: groups.filter(item => item.id !== group.id) })} />
     </li>)}</ul>
-    <p className="dt-hint">{text('所选群接收全部新消息；跨群 @我和个人私聊在下方单独开启。读取列表不改变范围，修改后请保存。',
+    <p className="dt-hint">{text('通过个人账号接收所选群的新消息；跨群 @我和个人私聊单独设置。修改后请保存。',
       'Selected groups receive all new messages. Account mentions and personal direct messages have separate switches below. Loading lists does not change scope; save your selections.')}</p>
+    {personalFields}
+    <div className="dt-subhead"><span className="dt-field-head">{text('机器人会话', 'Robot conversations')}</span></div>
+    <p className="dt-hint">{text('机器人私聊独立接收，不受上方个人账号的接收群和私聊开关影响。选择机器人并保存后开始接收其私聊，是否回复由下方开关控制。',
+      'Robot private chats are received independently of personal account groups and direct-message switches. Selecting and saving a robot enables private-chat receiving; replies use the switches below.')}</p>
+    <label className="dt-field">
+      <span className="dt-field-head">{text('使用的机器人', 'Robot to use')}</span>
+      <select className="dt-select" aria-label={text('使用的机器人', 'Robot to use')}
+        disabled={busy || accountChanged || !data} value={selected?.id ?? (config.botAppId ? String(config.botAppId) : '')}
+        onChange={event => {
+          const robot = robots.find(item => item.id === event.target.value)
+          onChange({ ...config, botAppId: robot?.id ?? '', robotCode: robot?.robotCode ?? '',
+            ...(!robot ? { botReplies: false, replies: false } : {}) })
+        }}>
+        <option value="">{text('不使用机器人', 'Do not use a robot')}</option>
+        {Boolean(config.botAppId) && !selected && <option value={String(config.botAppId)} disabled>
+          {text('已配置机器人（读取列表以核对名称）', 'Configured robot (load the list to verify its name)')}
+        </option>}
+        {robots.map(robot => <option key={robot.id} value={robot.id}>{robot.name}</option>)}
+      </select>
+    </label>
+    <p className="dt-hint">{text('选择机器人后会自动填写对应应用信息；不会自动开启回复。应用列表只显示已发布且当前账号可读取的机器人。',
+      'Choosing a robot fills its application details. Reply switches remain explicit. Lists include published robot applications readable by this account.')}</p>
+    {robotFields}
+    <p className="dt-hint">{text('群回复仅用于上方个人账号已选中的群；目前不单独监听群内 @机器人。',
+      'Group replies apply to groups selected under the personal account above. Receiving group mentions of the robot is not currently supported.')}</p>
   </div>
 }
