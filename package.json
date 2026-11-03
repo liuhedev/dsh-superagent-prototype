@@ -18,7 +18,8 @@
     "./feishu-watch": "./lib/feishu-watch.js",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
-    "./dingtalk-watch": "./lib/dingtalk-watch.js"
+    "./dingtalk-watch": "./lib/dingtalk-watch.js",
+    "./gitlab-watch": "./lib/gitlab-watch.js"
   },
   "files": [
     "lib",
@@ -26,7 +27,8 @@
     "locale/*.json",
     "README.md",
     "prompts",
-    "skills"
+    "skills",
+    "scripts/prepare-gitlab.mjs"
   ],
   "dsh": {
     "bundle": {
