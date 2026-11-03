@@ -2,6 +2,7 @@
 import { z } from 'zod'
 import { liveTicket, type EngineForExecutor, type Ticket } from '../../core/index.ts'
 import { IM_WORDS } from '../../infra/text.ts'
+import { bindGitlabMergeRequest, readGitlabMergeRequest } from '../../sources/gitlab.ts'
 import { claimPull, readPull } from '../../sources/github-pull.ts'
 import type { SourceContext } from '../../sources/host.ts'
 import { readResource, type ResourceHost } from '../resources.ts'
@@ -15,6 +16,8 @@ export interface ExecutorToolsHost {
   readonly store: Pick<Store, 'tickets' | 'replyStatus' | 'atomic'>
   readonly sessions: Pick<Sessions, 'relay' | 'notify'>
   readonly resources: ResourceHost
+  /** Optional GitLab Source context for validated MR ownership and lifecycle tracking. */
+  readonly gitlab?: SourceContext
   /** GitHub Source context whose pull-request rules govern claiming a reported PR. */
   readonly github: SourceContext
   sendReplies(): Promise<void>
@@ -80,14 +83,20 @@ export function executorTools(host: ExecutorToolsHost, ticket: Ticket): Tool[] {
         human_action: z.string().trim().min(1).max(1000).nullish().describe('One concrete question for a person, also with state=progress; omit to keep the pending one, null to clear it.'),
         question_for_trigger_id: z.string().optional().describe('With human_action: the human message that raised the question, which is asked where that person wrote.'),
         pr_number: z.number().int().positive().nullish().describe(`The ticket's PR: its source PR, or one by ${host.github.deployment.github.login} from a branch named after this ticket (DSH_SUPERAGENT_NAME).`),
+        gitlab_project: z.string().optional().describe('GitLab namespace/project when account-wide watching is enabled; required for tickets originating outside GitLab.'),
+        gitlab_mr_iid: z.number().int().positive().optional().describe('GitLab MR IID; source MR or authored by configured GitLab account from this ticket branch. Do not combine with pr_number.'),
         reply_to_trigger_id: z.string().optional().describe('The explicit human question this report answers; never for ordinary progress.'),
       }).strict(),
       execute: async (args, signal) => {
         const current = host.store.tickets.get(ticketId)
         if (!current || !liveTicket(current)) throw new Error('Ticket ended (PR was closed or work finished); do not resume it')
+        if (args.gitlab_mr_iid && args.pr_number != null) throw new Error('Report either a GitHub PR or a GitLab MR')
+        if (args.gitlab_mr_iid && !host.gitlab) throw new Error('GitLab source unavailable')
+        const mr = args.gitlab_mr_iid ? await readGitlabMergeRequest(host.gitlab!, args.gitlab_mr_iid, ticketId, signal, args.gitlab_project) : undefined
         const pull = args.pr_number != null ? await readPull(host.github, args.pr_number, signal) : undefined
         // Claim the PR, record the report, and queue the relay atomically so a rejected PR claim or invalid report leaves no partial state, and a recorded report always reaches the main Session.
         return host.store.atomic(() => {
+          if (mr) bindGitlabMergeRequest(host.gitlab!, ticketId, mr)
           const refused = pull && claimPull(host.github, ticketId, pull)
           if (refused) throw new Error(refused)
           const report = { state: args.state, summary: args.summary, ...(args.human_action !== undefined ? { question: args.human_action } : {}),

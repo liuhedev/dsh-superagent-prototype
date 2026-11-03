@@ -48,10 +48,14 @@ export const GithubAccountsSchema = z.object({
 })
 export const FeishuBotSchema = z.object({ cli: z.string().trim().default('') })
 /** Source configuration keys that affect deployment setup and trigger a restart when changed. */
-export const SETUP_FIELDS: Readonly<Record<string, readonly string[]>> = { github: Object.keys(GithubAccountsSchema.shape), feishu: Object.keys(FeishuBotSchema.shape) }
+export const SETUP_FIELDS: Readonly<Record<string, readonly string[]>> = { github: Object.keys(GithubAccountsSchema.shape), feishu: Object.keys(FeishuBotSchema.shape),
+  dingtalk: ['cli', 'profile', 'botAppId', 'robotCode'], gitlab: ['cli', 'hostname', 'login'],
+  mailbox: ['python', 'configPath', 'hostname', 'port', 'account'] }
 
 export interface Deployment extends Machine {
   repository: string
+  /** False when GitHub is disabled; the account fields are then empty. */
+  githubEnabled?: boolean
   github: { cli: string; login: string; noreply: string }
   feishu?: FeishuBot
 }
