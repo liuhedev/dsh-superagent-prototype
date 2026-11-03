@@ -39,7 +39,7 @@ export const mailboxKind: SourceKind<MailboxConfig> = {
   schema: MailboxConfigSchema, health: ['mailbox'], fields: [
     ...(['python', 'configPath', 'hostname', 'account', 'folder', 'subjectPrefix', 'watchId'] as const).map(k => ({ key: k, type: 'text' as const, label: { zh: k, en: k } })),
     { key: 'port', type: 'number', min: 1, max: 65535, label: { zh: 'IMAP TLS 端口', en: 'IMAP TLS port' } },
-    { key: 'senders', type: 'rows', label: { zh: '发件人过滤（空为不限定）', en: 'Sender filter (empty: any)' }, columns: [{ key: 'id', type: 'text', label: { zh: '邮箱', en: 'Email' } }] },
+    { key: 'senders', type: 'rows', label: { zh: '发件人过滤', en: 'Sender filter' }, hint: { zh: '留空接收所有发件人的邮件；填写后只接收匹配发件人。', en: 'Empty accepts any sender; configured entries restrict receiving to matching senders.' }, columns: [{ key: 'id', type: 'text', label: { zh: '邮箱', en: 'Email' } }] },
     { key: 'pollSeconds', type: 'number', min: 30, max: 3600, label: { zh: '轮询间隔（秒）', en: 'Poll interval (seconds)' } },
   ], scope: ({ meta }, c) => meta.hostname === c.hostname.toLowerCase() && meta.port === c.port && meta.account === c.account.toLowerCase() && meta.folder === c.folder
     ? { listened: true, observed: true, row: 'all' } : { listened: false, reason: 'mailbox_not_allowed' },

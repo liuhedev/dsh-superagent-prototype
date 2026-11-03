@@ -73,8 +73,8 @@ export function gitlabKind(getConfig: () => GitlabConfig | undefined): SourceKin
     description: { zh: '接收账号可访问项目的 Issue、MR、评论与流水线，或兼容单仓库模式。默认不回复。', en: 'Poll accessible projects: issues, MRs, notes and pipelines. Replies off by default.' },
     schema: GitlabConfigSchema, health: ['gitlab'], fields: [
       ...(['cli', 'hostname', 'project', 'login'] as const).map(k => ({ key: k, type: 'text' as const, label: { zh: k, en: k } })),
-      { key: 'allProjects', type: 'switch', label: { zh: '监听账号可访问的全部项目', en: 'Watch all accessible projects' } },
-      { key: 'pipelineBatch', type: 'number', min: 1, max: 100, label: { zh: '每轮扫描流水线的项目数', en: 'Pipeline projects per pass' } },
+      { key: 'allProjects', type: 'switch', label: { zh: '监听全部项目', en: 'Watch all projects' }, hint: { zh: '开启后扫描当前账号可访问的全部项目；关闭时只监听指定 project。项目较多时建议指定项目。', en: 'Scans all projects accessible to this account. Otherwise only the configured project is watched. Prefer a specific project for large accounts.' } },
+      { key: 'pipelineBatch', type: 'number', min: 1, max: 100, label: { zh: '每轮项目数', en: 'Projects per pass' }, hint: { zh: '每轮最多扫描多少个项目的流水线，用于控制请求量。', en: 'Maximum projects whose pipelines are scanned per pass, to bound requests.' } },
       { key: 'pollSeconds', type: 'number', min: 15, max: 3600, label: { zh: '轮询间隔（秒）', en: 'Poll interval (seconds)' } },
       { key: 'replies', type: 'switch', label: { zh: '允许评论回复', en: 'Enable comment replies' } },
     ], scope: ({ meta }, c) => meta.hostname === c.hostname && projectPath(meta.project) && (c.allProjects || meta.project === c.project) ? { listened: true, observed: c.allProjects || meta.ci === true, row: 'all' } : { listened: false, reason: 'project_not_allowed' },

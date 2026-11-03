@@ -53,15 +53,15 @@ export function dingtalkKind(getConfig: () => DingtalkConfig | undefined, state?
     description: { zh: '接收指定群、跨群 @当前账号及可选的当前账号全部私聊；普通消息进入观察，只有名单内用户的明确指令可接单。', en: 'Configured groups and optional account-wide direct messages; explicit command prefix. Bot replies are off by default.' },
     schema: DingtalkConfigSchema, health: ['dingtalk', 'dingtalk-bot'], fields: [
       { key: 'cli', type: 'text', advanced: true, label: { zh: 'dws CLI', en: 'dws CLI' } },
-      { key: 'profile', type: 'text', advanced: true, label: { zh: '组织 Profile（空为当前组织）', en: 'Organization profile (empty: current)' } },
+      { key: 'profile', type: 'text', advanced: true, label: { zh: '组织 Profile', en: 'Organization profile' }, hint: { zh: '留空使用当前组织。', en: 'Leave empty to use the current organization.' } },
       { key: 'chats', type: 'rows', advanced: true, label: { zh: '手动填写群 ID', en: 'Manual group IDs' }, columns: [{ key: 'id', type: 'text', label: { zh: 'openConversationId', en: 'openConversationId' } }] },
-      { key: 'mentions', type: 'switch', label: { zh: '接收跨群 @当前账号的消息（仅分析）', en: 'Receive account mentions across groups (analysis only)' } },
+      { key: 'mentions', type: 'switch', label: { zh: '接收跨群 @我', en: 'Receive account mentions' }, hint: { zh: '仅用于分析，不授予任务执行。', en: 'Analysis only; does not grant task execution.' } },
       { key: 'directMessages', type: 'switch', label: { zh: '接收当前账号全部私聊', en: 'Receive all account direct messages' } },
       { key: 'prefix', type: 'text', advanced: true, label: { zh: '明确指令前缀', en: 'Explicit command prefix' } },
-      { key: 'botAppId', type: 'text', advanced: true, label: { zh: '机器人应用 ID（自动填写）', en: 'Robot application ID (filled automatically)' } },
-      { key: 'botReplies', type: 'switch', label: { zh: '允许回复机器人私聊（不授予任务执行）', en: 'Reply to robot private chats (no execution grant)' } },
-      { key: 'robotCode', type: 'text', advanced: true, label: { zh: 'robotCode（自动填写）', en: 'robotCode (filled automatically)' } },
-      { key: 'replies', type: 'switch', label: { zh: '允许机器人回复个人账号所选群', en: 'Allow robot replies in selected groups' } },
+      { key: 'botAppId', type: 'text', advanced: true, label: { zh: '机器人应用 ID', en: 'Robot application ID' }, hint: { zh: '选择机器人后自动填写。', en: 'Filled automatically when choosing a robot.' } },
+      { key: 'botReplies', type: 'switch', label: { zh: '允许回复机器人私聊', en: 'Reply to robot private chats' }, hint: { zh: '允许聊天回复，不授予任务执行。', en: 'Allows chat replies without granting task execution.' } },
+      { key: 'robotCode', type: 'text', advanced: true, label: { zh: 'robotCode', en: 'robotCode' }, hint: { zh: '选择机器人后自动填写。', en: 'Filled automatically when choosing a robot.' } },
+      { key: 'replies', type: 'switch', label: { zh: '允许机器人群回复', en: 'Allow robot group replies' }, hint: { zh: '仅回复个人账号已选群；不单独监听群内 @机器人。', en: 'Replies only in personal-account selected groups; robot group mentions are not separately received.' } },
     ], scope: ({ meta }, c) => meta.bot === true
       ? c.botAppId && meta.robotCode === c.robotCode ? { listened: true, observed: true, row: 'all' } : { listened: false, reason: 'bot_messages_not_allowed' }
       : meta.mentioned === true

@@ -1,7 +1,7 @@
 /** Name-based DingTalk setup. Selection edits the existing draft; only Save changes the receiving scope. */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { DingtalkDiscovery } from '../sources/dingtalk-discovery.ts'
-import { Button, Icon, Input } from './controls.tsx'
+import { Button, Icon, InfoTip, Input } from './controls.tsx'
 import { usePanel } from './provider.tsx'
 import { errorText } from './text.ts'
 
@@ -52,7 +52,8 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
   return <div className="dt-dingtalk-sections">
     <section className="dt-dingtalk-section" aria-label={text('个人账号消息', 'Personal account messages')}>
     <div className="dt-subhead">
-      <span className="dt-field-head">{text('个人账号消息（DWS）', 'Personal account messages (DWS)')}</span>
+      <span className="dt-field-head">{text('个人账号消息（DWS）', 'Personal account messages (DWS)')}<InfoTip text={text('使用已登录的 DWS 账号；首次使用请在终端登录。其他组织可在高级设置指定 Profile，无需填写授权 ID。',
+        'Uses the signed-in DWS account. Sign in in the terminal first; select another organization in Advanced. No authorization ID is needed.')} /></span>
       <Button variant="ghost" size="sm" icon={<Icon name="refresh" />} disabled={busy || accountChanged}
         aria-busy={busy} onClick={() => { void refresh() }}>
         {busy ? text('正在读取…', 'Loading…') : text('读取账号和机器人', 'Load account and robots')}
@@ -60,12 +61,12 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     </div>
     <p className="dt-hint">{accountChanged ? text('CLI 或组织配置已修改，请先保存再读取。', 'Save the CLI or organization changes before loading.')
       : data ? text(`当前账号：${data.account}`, `Current account: ${data.account}`)
-      : text('使用已登录的 dws 账号读取列表，不需要填写授权 ID。首次使用请先在终端登录 dws；其他组织可在高级设置指定 Profile。',
-        'Load lists using the signed-in dws account. No authorization ID is needed. Sign in with dws first; select another organization in Advanced.')}</p>
+      : text('点击右上角读取账号。', 'Load the account using the button above.')}</p>
     {error && <p className="dt-error" role="status">{text('读取失败：', 'Loading failed: ')}{error}</p>}
     {data?.warnings.map(warning => <p className="dt-hint" key={warning}>{warning}</p>)}
     <div className="dt-subhead">
-      <span className="dt-field-head">{text('接收的群', 'Receiving groups')} <span className="dt-count">{groups.length}</span></span>
+      <span className="dt-field-head">{text('接收的群', 'Receiving groups')}<InfoTip text={text('通过个人账号接收所选群的新消息；跨群 @我和个人私聊单独设置。修改后请保存。',
+      'Selected groups receive all new messages. Account mentions and personal direct messages have separate switches below. Loading lists does not change scope; save your selections.')} /> <span className="dt-count">{groups.length}</span></span>
       <Button variant="ghost" size="sm" disabled={accountChanged || busy}
         onClick={() => { setAddingGroup(!addingGroup); setGroupQuery(''); setMatches(undefined) }}>
         {addingGroup ? text('取消', 'Cancel') : text('＋ 添加', '+ Add')}
@@ -104,13 +105,12 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
       </li>)}</ul>
     </div>}
     </div>}
-    <p className="dt-hint">{text('通过个人账号接收所选群的新消息；跨群 @我和个人私聊单独设置。修改后请保存。',
-      'Selected groups receive all new messages. Account mentions and personal direct messages have separate switches below. Loading lists does not change scope; save your selections.')}</p>
     {personalFields}
     </section>
     <section className="dt-dingtalk-section" aria-label={text('机器人会话', 'Robot conversations')}>
     <div className="dt-subhead">
-      <span className="dt-field-head">{text('机器人会话', 'Robot conversations')}</span>
+      <span className="dt-field-head">{text('机器人会话', 'Robot conversations')}<InfoTip text={text('机器人私聊独立接收，不受上方个人账号的接收群和私聊开关影响。选择机器人并保存后开始接收其私聊，是否回复由下方开关控制。',
+      'Robot private chats are received independently of personal account groups and direct-message switches. Selecting and saving a robot enables private-chat receiving; replies use the switches below.')} /></span>
       <Button variant="ghost" size="sm" icon={<Icon name="refresh" />} disabled={busy || accountChanged}
         aria-busy={busy} onClick={() => { void refresh() }}>
         {busy ? text('正在读取…', 'Loading…') : text('读取机器人', 'Load robots')}
@@ -119,10 +119,9 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     {!data && <p className="dt-hint">{accountChanged
       ? text('请先保存 CLI 或组织配置，再读取机器人。', 'Save the CLI or organization changes before loading robots.')
       : text('请先点击本区域右上角“读取机器人”，再选择机器人。', 'Choose Load robots in this section before selecting a robot.')}</p>}
-    <p className="dt-hint">{text('机器人私聊独立接收，不受上方个人账号的接收群和私聊开关影响。选择机器人并保存后开始接收其私聊，是否回复由下方开关控制。',
-      'Robot private chats are received independently of personal account groups and direct-message switches. Selecting and saving a robot enables private-chat receiving; replies use the switches below.')}</p>
     <label className="dt-field">
-      <span className="dt-field-head">{text('使用的机器人', 'Robot to use')}</span>
+      <span className="dt-field-head">{text('使用的机器人', 'Robot to use')}<InfoTip text={text('选择机器人后会自动填写对应应用信息；不会自动开启回复。应用列表只显示已发布且当前账号可读取的机器人。',
+      'Choosing a robot fills its application details. Reply switches remain explicit. Lists include published robot applications readable by this account.')} /></span>
       <select className="dt-select" aria-label={text('使用的机器人', 'Robot to use')}
         disabled={busy || accountChanged || !data} value={selected?.id ?? (config.botAppId ? String(config.botAppId) : '')}
         onChange={event => {
@@ -137,11 +136,7 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
         {robots.map(robot => <option key={robot.id} value={robot.id}>{robot.name}</option>)}
       </select>
     </label>
-    <p className="dt-hint">{text('选择机器人后会自动填写对应应用信息；不会自动开启回复。应用列表只显示已发布且当前账号可读取的机器人。',
-      'Choosing a robot fills its application details. Reply switches remain explicit. Lists include published robot applications readable by this account.')}</p>
     {robotFields}
-    <p className="dt-hint">{text('群回复仅用于上方个人账号已选中的群；目前不单独监听群内 @机器人。',
-      'Group replies apply to groups selected under the personal account above. Receiving group mentions of the robot is not currently supported.')}</p>
     </section>
   </div>
 }
