@@ -26,8 +26,13 @@ export async function discoverDingtalk(commands: Commands, config: DingtalkConfi
   if (groupQuery !== undefined) {
     const query = z.string().trim().min(1).max(100).parse(groupQuery)
     const page = Groups.parse(await read(['chat', '+chat-search', '--query', query, '--limit', '20']))
-    result.groups = page.chats.map(group => ({ id: group.openConversationId, name: group.name }))
-    if (!page.complete) result.warnings.push('仅显示前 20 个结果，请输入更完整的群名。 / Showing up to 20 matches; refine the group name.')
+    const normalize = (value: string) => value.normalize('NFKC').toLocaleLowerCase().replace(/\s+/gu, '')
+    const keyword = normalize(query)
+    const matches = page.chats.filter(group => normalize(group.name).includes(keyword))
+      .sort((a, b) => Number(normalize(b.name) === keyword) - Number(normalize(a.name) === keyword)
+        || a.name.localeCompare(b.name))
+    result.groups = matches.slice(0, 5).map(group => ({ id: group.openConversationId, name: group.name }))
+    if (!page.complete || matches.length > 5) result.warnings.push('最多显示 5 个群名匹配结果；结果可能不完整，请输入更完整的群名。 / Showing up to 5 name matches; results may be incomplete. Refine the group name.')
     return result
   }
   await Promise.all([
