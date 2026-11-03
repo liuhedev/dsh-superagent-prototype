@@ -159,7 +159,7 @@ function routes(runtime: HttpHost): Routes {
     'GET search': ({ query }) => search(views(runtime), query.q ?? '', runtime.sourceLinks),
     'GET sources': () => sourcesStatus(views(runtime), runtime.health, setupState(runtime)),
     'GET settings': () => settingsView(store, runtime.sources, runtime.health, setupState(runtime), runtime.machine.stateDir),
-    'POST sources/:id/labels': ({ params }) => runtime.settings.refreshLabels(params.id),
+    'POST sources/:id/labels': ({ params, query }) => runtime.settings.refreshLabels(params.id, query.q),
     'GET threads': ({ query }) => {
       const { filter, offset, limit } = ThreadsQuery.parse(query)
       return threadList(views(runtime), filter, offset, limit)

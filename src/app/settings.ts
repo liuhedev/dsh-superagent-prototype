@@ -13,6 +13,9 @@ import type { Sessions } from './sessions.ts'
 import { accountsChanged, setupChanged, type Setup } from './setup.ts'
 import type { Store } from './store.ts'
 import { KV } from '../kv.ts'
+import { discoverDingtalk } from '../sources/dingtalk-discovery.ts'
+import type { DingtalkDiscovery } from '../sources/dingtalk-discovery.ts'
+import { DingtalkConfigSchema } from '../sources/dingtalk.ts'
 
 /**
  * Indicates an optimistic concurrency conflict when saving or syncing a settings block against a stale revision.
@@ -255,7 +258,20 @@ export class Settings {
    * @returns Sorted display names (`{ added }`) that were not present in the stored label map before this read.
    * @throws UserError (`noLabels`) when the Source has no label refresh; rethrows a failed read, keeping the stored list.
    */
-  async refreshLabels(id: string): Promise<{ added: string[] }> {
+  async discoverDingtalk(groupQuery?: string) {
+    const instance = this.host.sources.instance('dingtalk')
+    if (!instance || !this.host.sources.kind('dingtalk')) throw new UserError('noLabels')
+    const config = DingtalkConfigSchema.parse(instance.config)
+    const commands = this.host.sourceHost.context({ kind: 'dingtalk', health: ['dingtalk', 'dingtalk-bot'] }).commands
+    const result = await discoverDingtalk(commands, config, groupQuery)
+    const current = this.host.sources.instance('dingtalk')
+    if (current?.config.cli !== config.cli || current?.config.profile !== config.profile) {
+      throw new SettingsConflict('DingTalk account settings changed during discovery. Refresh the list again.')
+    }
+    return result
+  }
+  async refreshLabels(id: string, groupQuery?: string): Promise<{ added: string[]; discovery?: DingtalkDiscovery }> {
+    if (id === 'dingtalk') return { added: [], discovery: await this.discoverDingtalk(groupQuery) }
     const { store, sources } = this.host
     const instance = sources.instance(id)
     const kind = instance && sources.kind(instance.kind)

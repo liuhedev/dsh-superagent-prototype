@@ -25,6 +25,8 @@ Set a row's `disabled` to `false`, restart the profile, then configure and enabl
 
 Install and authenticate the `dws` CLI. Set `cli` and, for a non-default organization, `profile`. The same profile is used for receiving and bot commands.
 
+In **Sources → DingTalk**, choose **Load account and robots** to show the signed-in account and organization. Enter a group name, choose **Find group**, and add the intended match; there is no account-wide group listing. Choose a published robot by name; its application ID and robotCode are filled together. Loading lists never enables receiving or sending: save the Source draft to apply selections and use the separate reply switches. CLI, organization profile and manual IDs are available in **Advanced**. Group search returns at most 20 matches and asks you to refine partial results; robot discovery reads at most 100 applications and 20 robot application details. Partial or unavailable lists show a warning. Neither operation reads application credentials.
+
 - `chats`: exact `openConversationId` values to receive all group messages.
 - `directMessages`: receive all private messages of the authenticated personal account.
 - `mentions`: receive platform events mentioning that personal account across groups. These are analysis signals, not explicit work requests.

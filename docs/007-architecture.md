@@ -368,6 +368,7 @@ Some generic modules still refer directly to GitHub or Feishu:
 | `src/sources/github-channel.ts` | The GitHub Channel: comments and review thread replies, `sent` or `gone` |
 | `src/sources/github-read.ts` | CI snapshots, repository reads, the `github/` resources, and `githubThreadContext`: an Issue's or pull request's conversation by page |
 | `src/sources/dingtalk.ts` | Optional DWS live-event Source |
+| `src/sources/dingtalk-discovery.ts` | Bounded read-only account, group and published robot discovery for name-based setup; never reads credentials |
 | `src/sources/dingtalk-bot.ts` | Official robot Stream callback receiver |
 | `src/sources/dingtalk-conversation.ts` | Bounded private conversation context and durable bot replies |
 | `src/sources/gitlab.ts` | Optional GitLab polling, context and MR binding |
@@ -387,6 +388,7 @@ Some generic modules still refer directly to GitHub or Feishu:
 | `src/client/route.ts` | The tabs, the settings groups, the typed routes that `parseRoute` reads, and the route memory with the settings group opened last |
 | `src/client/overview.tsx` | The overview |
 | `src/client/source.tsx`, `trigger.tsx`, `eval.tsx`, `execution.tsx` | One file per stage: its status, and its settings where it has some |
+| `src/client/dingtalk-setup.tsx` | Name-based group and robot selection editing the existing Source draft |
 | `src/client/thread.tsx`, `ticket.tsx` | The record pages: a Thread with its timeline, and a Ticket with its authorization, Inputs and Assignments |
 | `src/client/settings.tsx` | The Settings tab: the group navigation and the group on screen |
 | `src/client/settings-kit.tsx` | The building blocks of settings blocks: the settings the stage groups share, `useBlockDraft`, the fields, among them a Source kind's, and the history of saves |
