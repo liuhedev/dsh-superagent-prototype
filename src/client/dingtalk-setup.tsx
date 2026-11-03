@@ -98,7 +98,16 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     {personalFields}
     </section>
     <section className="dt-dingtalk-section" aria-label={text('机器人会话', 'Robot conversations')}>
-    <div className="dt-subhead"><span className="dt-field-head">{text('机器人会话', 'Robot conversations')}</span></div>
+    <div className="dt-subhead">
+      <span className="dt-field-head">{text('机器人会话', 'Robot conversations')}</span>
+      <Button variant="ghost" size="sm" icon={<Icon name="refresh" />} disabled={busy || accountChanged}
+        aria-busy={busy} onClick={() => { void refresh() }}>
+        {busy ? text('正在读取…', 'Loading…') : text('读取机器人', 'Load robots')}
+      </Button>
+    </div>
+    {!data && <p className="dt-hint">{accountChanged
+      ? text('请先保存 CLI 或组织配置，再读取机器人。', 'Save the CLI or organization changes before loading robots.')
+      : text('请先点击本区域右上角“读取机器人”，再选择机器人。', 'Choose Load robots in this section before selecting a robot.')}</p>}
     <p className="dt-hint">{text('机器人私聊独立接收，不受上方个人账号的接收群和私聊开关影响。选择机器人并保存后开始接收其私聊，是否回复由下方开关控制。',
       'Robot private chats are received independently of personal account groups and direct-message switches. Selecting and saving a robot enables private-chat receiving; replies use the switches below.')}</p>
     <label className="dt-field">
@@ -112,7 +121,7 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
         }}>
         <option value="">{text('不使用机器人', 'Do not use a robot')}</option>
         {Boolean(config.botAppId) && !selected && <option value={String(config.botAppId)} disabled>
-          {text('已配置机器人（读取列表以核对名称）', 'Configured robot (load the list to verify its name)')}
+          {text('已配置机器人（请先点击“读取机器人”）', 'Configured robot (choose Load robots first)')}
         </option>}
         {robots.map(robot => <option key={robot.id} value={robot.id}>{robot.name}</option>)}
       </select>
