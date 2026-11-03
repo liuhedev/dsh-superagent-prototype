@@ -15,11 +15,12 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [groupQuery, setGroupQuery] = useState('')
+  const [addingGroup, setAddingGroup] = useState(false)
   const [matches, setMatches] = useState<DingtalkDiscovery>()
   const request = useRef(0)
   const accountChanged = config.cli !== saved.cli || config.profile !== saved.profile
   useEffect(() => {
-    setData(undefined); setMatches(undefined); setGroupQuery(''); setError(''); setBusy(false); request.current++
+    setData(undefined); setMatches(undefined); setAddingGroup(false); setGroupQuery(''); setError(''); setBusy(false); request.current++
     return () => { request.current++ }
   }, [saved.cli, saved.profile])
   const refresh = async () => {
@@ -63,7 +64,21 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
         'Load lists using the signed-in dws account. No authorization ID is needed. Sign in with dws first; select another organization in Advanced.')}</p>
     {error && <p className="dt-error" role="status">{text('读取失败：', 'Loading failed: ')}{error}</p>}
     {data?.warnings.map(warning => <p className="dt-hint" key={warning}>{warning}</p>)}
-    <div className="dt-subhead"><span className="dt-field-head">{text('接收的群', 'Receiving groups')} <span className="dt-count">{groups.length}</span></span></div>
+    <div className="dt-subhead">
+      <span className="dt-field-head">{text('接收的群', 'Receiving groups')} <span className="dt-count">{groups.length}</span></span>
+      <Button variant="ghost" size="sm" disabled={accountChanged || busy}
+        onClick={() => { setAddingGroup(!addingGroup); setGroupQuery(''); setMatches(undefined) }}>
+        {addingGroup ? text('取消', 'Cancel') : text('＋ 添加', '+ Add')}
+      </Button>
+    </div>
+    <ul className="dt-list dt-dingtalk-groups">{groups.map(group => <li key={group.id} className="dt-row">
+      <span className="dt-row-main" title={group.id}>{data?.groups.find(item => item.id === group.id)?.name
+        ?? group.name ?? text('已配置群（读取列表以核对名称）', 'Configured group (load the list to verify its name)')}</span>
+      <Button variant="ghost" size="sm" icon={<Icon name="trash" />} aria-label={text('移除接收群', 'Remove receiving group')}
+        onClick={() => onChange({ ...config, chats: groups.filter(item => item.id !== group.id) })} />
+    </li>)}</ul>
+    {!groups.length && <p className="dt-hint">{text('尚未添加接收群', 'No receiving groups added')}</p>}
+    {addingGroup && <div className="dt-dingtalk-group-search">
     <div className="dt-row">
       <Input className="dt-row-main" aria-label={text('要添加的群名', 'Group name to add')} maxLength={100}
         placeholder={text('输入要添加的群名', 'Enter the group name to add')} value={groupQuery}
@@ -75,24 +90,20 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     {matches && <div role="status">
       {matches.warnings.map(warning => <p className="dt-hint" key={warning}>{warning}</p>)}
       {!matches.groups.length && <p className="dt-hint">{text('没有找到群，请检查群名或当前组织。', 'No groups found. Check the name or organization.')}</p>}
-      <ul className="dt-list">{matches.groups.map(group => <li className="dt-row" key={group.id}>
+      <ul className="dt-list dt-dingtalk-groups">{matches.groups.map(group => <li className="dt-row" key={group.id}>
         <span className="dt-row-main" title={group.id}>{group.name}</span>
         <Button variant="ghost" size="sm" disabled={accountChanged || busy || groups.some(item => item.id === group.id)}
           onClick={() => {
             if (!accountChanged && !busy && !groups.some(item => item.id === group.id)) {
               onChange({ ...config, chats: [...groups, group] })
+              setAddingGroup(false); setGroupQuery(''); setMatches(undefined)
             }
           }}>
           {groups.some(item => item.id === group.id) ? text('已添加', 'Added') : text('添加', 'Add')}
         </Button>
       </li>)}</ul>
     </div>}
-    <ul className="dt-list">{groups.map(group => <li key={group.id} className="dt-row">
-      <span className="dt-row-main" title={group.id}>{data?.groups.find(item => item.id === group.id)?.name
-        ?? group.name ?? text('已配置群（读取列表以核对名称）', 'Configured group (load the list to verify its name)')}</span>
-      <Button variant="ghost" size="sm" icon={<Icon name="dismiss" />} aria-label={text('移除接收群', 'Remove receiving group')}
-        onClick={() => onChange({ ...config, chats: groups.filter(item => item.id !== group.id) })} />
-    </li>)}</ul>
+    </div>}
     <p className="dt-hint">{text('通过个人账号接收所选群的新消息；跨群 @我和个人私聊单独设置。修改后请保存。',
       'Selected groups receive all new messages. Account mentions and personal direct messages have separate switches below. Loading lists does not change scope; save your selections.')}</p>
     {personalFields}

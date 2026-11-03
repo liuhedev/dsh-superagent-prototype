@@ -385,3 +385,9 @@ a.dt-btn, a.dt-btn:hover { text-decoration: none; }
 .dt-dingtalk-sections { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .dt-dingtalk-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--dsw-alias-border-l3); border-radius: 12px; }
 .dt-dingtalk-section > .dt-subhead:first-child .dt-field-head { font-size: 14px; font-weight: 600; color: var(--dsw-alias-label-primary); }
+
+.dt-dingtalk-groups { margin: 0; }
+.dt-dingtalk-groups > .dt-row { align-items: center; padding: 4px 0; border-radius: 0; }
+.dt-dingtalk-groups .dt-row-main { align-self: center; }
+.dt-dingtalk-group-search { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--dsw-alias-border-l3); border-radius: 8px; }
+.dt-dingtalk-group-search > .dt-row { padding: 0; align-items: center; }
