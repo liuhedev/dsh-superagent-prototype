@@ -380,3 +380,8 @@ a.dt-btn, a.dt-btn:hover { text-decoration: none; }
 .dt-admission-slot { display: inline-flex; flex: none; width: 16px; }
 .dt-info-warn { color: var(--dsw-alias-state-warn-primary); }
 .dt-field-segmented { max-width: 240px; }
+
+/* Keep personal-account receiving and robot conversations visually distinct. */
+.dt-dingtalk-sections { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.dt-dingtalk-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--dsw-alias-border-l3); border-radius: 12px; }
+.dt-dingtalk-section > .dt-subhead:first-child .dt-field-head { font-size: 14px; font-weight: 600; color: var(--dsw-alias-label-primary); }

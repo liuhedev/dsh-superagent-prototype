@@ -48,7 +48,8 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
   const groups = (config.chats ?? []) as { id: string; name?: string }[]
   const robots = data?.robots ?? []
   const selected = robots.find(robot => robot.id === config.botAppId && robot.robotCode === config.robotCode)
-  return <div className="dt-field">
+  return <div className="dt-dingtalk-sections">
+    <section className="dt-dingtalk-section" aria-label={text('个人账号消息', 'Personal account messages')}>
     <div className="dt-subhead">
       <span className="dt-field-head">{text('个人账号消息（DWS）', 'Personal account messages (DWS)')}</span>
       <Button variant="ghost" size="sm" icon={<Icon name="refresh" />} disabled={busy || accountChanged}
@@ -95,6 +96,8 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     <p className="dt-hint">{text('通过个人账号接收所选群的新消息；跨群 @我和个人私聊单独设置。修改后请保存。',
       'Selected groups receive all new messages. Account mentions and personal direct messages have separate switches below. Loading lists does not change scope; save your selections.')}</p>
     {personalFields}
+    </section>
+    <section className="dt-dingtalk-section" aria-label={text('机器人会话', 'Robot conversations')}>
     <div className="dt-subhead"><span className="dt-field-head">{text('机器人会话', 'Robot conversations')}</span></div>
     <p className="dt-hint">{text('机器人私聊独立接收，不受上方个人账号的接收群和私聊开关影响。选择机器人并保存后开始接收其私聊，是否回复由下方开关控制。',
       'Robot private chats are received independently of personal account groups and direct-message switches. Selecting and saving a robot enables private-chat receiving; replies use the switches below.')}</p>
@@ -119,5 +122,6 @@ export function DingtalkSetup({ config, saved, onChange, personalFields, robotFi
     {robotFields}
     <p className="dt-hint">{text('群回复仅用于上方个人账号已选中的群；目前不单独监听群内 @机器人。',
       'Group replies apply to groups selected under the personal account above. Receiving group mentions of the robot is not currently supported.')}</p>
+    </section>
   </div>
 }
