@@ -140,7 +140,10 @@ export class Prompts {
   }
   /** A role's prompt; the main Session's Policy section follows the settings as they are now, at each model request. */
   compose(config: PromptConfig, role: Role, variables = this.environment()): string {
-    return composePrompt(config, role, environmentSection(config, variables), role === 'orchestrator' ? policySection(this.store.settings(), config) : undefined)
+    const base = composePrompt(config, role, environmentSection(config, variables), role === 'orchestrator' ? policySection(this.store.settings(), config) : undefined)
+    return base
+      + (variables?.some(v => v.key === 'DSH_SUPERAGENT_DINGTALK_CHAT')
+      ? '\nDingTalk explicit requests use the configured command prefix and allowed-sender policy. The orchestrator owns replies through its Outbox; do not send duplicate replies through dws or switch to the personal user identity. Live streams do not guarantee historical completeness.' : '')
   }
   /** Returns skills to register in every Session: built-in Source skills (`feishu` only when a Feishu bot is configured) followed by team skills. */
   skills(config: PromptConfig): [string, string][] {

@@ -37,3 +37,5 @@ Read the numbered documents in order; each builds only on the ones before it.
 ## License
 
 [MIT](LICENSE)
+
+Optional integrations: [DingTalk / DWS, GitLab and IMAP](docs/009-additional-sources.md).

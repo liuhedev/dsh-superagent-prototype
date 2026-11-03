@@ -62,6 +62,7 @@ export class Setup {
   /** Verify account CLIs for a modified source block before saving, ignoring setup errors belonging to other blocks. */
   async checkAccounts(block: SettingsBlock, settings: Settings): Promise<void> {
     const { machine } = this.host
+    if (block !== 'source:github' && block !== 'source:feishu') return
     if (block === 'source:github' && settings.sources.github?.enabled === false) return
     const check = block === 'source:feishu' ? resolveFeishuBot(machine, settings.sources.feishu?.config, this.probe())
       : resolveDeployment(machine, settings.sources.github?.config, this.probe())
