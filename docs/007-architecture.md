@@ -371,6 +371,7 @@ Some generic modules still refer directly to GitHub or Feishu:
 | `src/sources/dingtalk-bot.ts` | Official robot Stream callback receiver |
 | `src/sources/dingtalk-conversation.ts` | Bounded private conversation context and durable bot replies |
 | `src/sources/gitlab.ts` | Optional GitLab polling, context and MR binding |
+| `src/sources/mailbox.ts` | Optional read-only IMAP Source with UID checkpoints |
 | `src/sources/explicit-policy.ts` | Allowed-sender and explicit-request policy for optional Sources |
 | `src/sources/feishu.ts` | The Feishu kind and plugin entry, exported as `./feishu-watch` |
 | `src/sources/feishu-trigger.ts` | Feishu messages as Triggers, by one rule for live events, history pages and topic pages |

@@ -19,7 +19,8 @@
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
     "./dingtalk-watch": "./lib/dingtalk-watch.js",
-    "./gitlab-watch": "./lib/gitlab-watch.js"
+    "./gitlab-watch": "./lib/gitlab-watch.js",
+    "./mailbox-watch": "./lib/mailbox-watch.js"
   },
   "files": [
     "lib",
@@ -28,7 +29,8 @@
     "README.md",
     "prompts",
     "skills",
-    "scripts/prepare-gitlab.mjs"
+    "scripts/prepare-gitlab.mjs",
+    "scripts/mailbox-imap.py"
   ],
   "dsh": {
     "bundle": {

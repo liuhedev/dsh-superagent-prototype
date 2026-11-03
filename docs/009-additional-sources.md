@@ -1,6 +1,6 @@
 # 009 Additional Sources
 
-Optional DingTalk and GitLab plugins reuse the existing Source registry, admission policy, evaluator, Tickets and Outbox. They do not introduce a separate agent loop. See [006 Deployment](006-deployment.md) for worker isolation and [002 Authorization](002-authorization.md) for admission rules.
+Optional DingTalk, GitLab and IMAP plugins reuse the existing Source registry, admission policy, evaluator, Tickets and Outbox. They do not introduce a separate agent loop. See [006 Deployment](006-deployment.md) for worker isolation and [002 Authorization](002-authorization.md) for admission rules.
 
 ## Enable explicitly
 
@@ -13,6 +13,9 @@ The standard bundle and its default Sources remain unchanged. Add only the plugi
       disabled: true
     - id: dsh-superagent-gitlab
       name: dsh-superagent/gitlab-watch
+      disabled: true
+    - id: dsh-superagent-mailbox
+      name: dsh-superagent/mailbox-watch
       disabled: true
 ```
 
@@ -43,3 +46,24 @@ Account-wide mode rotates through accessible projects for pipelines, scanning at
 Replies are off by default. When enabled, comments use a stable Outbox marker and an exact originating project; markers suppress self-generated events. A reported MR must be the originating MR or belong to the configured agent and Ticket branch in the same project. The adapter never merges MRs. Use `gitlab_project` and `gitlab_mr_iid` in the existing executor report tool, without `pr_number`.
 
 For GitLab worker preparation, use an absolute path to the packaged `scripts/prepare-gitlab.mjs` as Execution's prepare command. It reads the declared GitLab and Ticket environment variables, verifies the account/project, and clones only that Ticket's concrete project. It sets a repository-local commit identity without changing the operator's global Git/glab configuration. The clone uses a command-scoped credential helper; no credential keys are stored in the repository, so the existing directory credential check remains effective. For authenticated pushes, use `git -c credential.helper= -c 'credential.https://<hostname>.helper=!<configured-cli> auth git-credential' push ...` with the verified configured host and CLI, rather than setting repository-local credential keys. An empty project in account-wide mode is not a write target. GitHub and GitLab Tickets retain their respective delivery workflows when both Sources are enabled.
+
+## Generic IMAP over TLS
+
+Requires Python 3.8+ with the standard library. Set `hostname`, TLS `port` (993 by default), `account`, `folder`, and `configPath`. Create a local credential file, readable only by the profile's OS user:
+
+```json
+{
+  "imap": {
+    "host": "imap.example.org",
+    "port": 993,
+    "user": "agent@example.org",
+    "password": "<application password>"
+  }
+}
+```
+
+The credential file's server and account must match the Source configuration. A panel edit cannot redirect an existing credential file to another host. TLS certificate verification is required. No SMTP configuration or personal email-tool configuration is read. Credentials never pass as command arguments or enter Source settings.
+
+`subjectPrefix` and `senders` are optional filters; empty filters receive all new mail. An initial UID baseline skips old mail. Polling uses read-only mailbox selection and `BODY.PEEK`, leaves read/unread flags alone, and processes at most 50 UIDs per helper invocation. Pending pages are drained before the normal polling delay. Bodies larger than 2 MiB become header-only evidence; attachments are listed by name, not downloaded. Text previews are bounded.
+
+UIDVALIDITY changes stop consumption until an operator changes `watchId` to establish a new baseline. A new hostname, port, account, folder, watch ID or filter scope gets a separate cursor. Change `watchId` when a server is replaced behind the same hostname. IMAP `From` headers never authenticate a human or authorize a worker. This Source has no sending transport or historical body reader.
