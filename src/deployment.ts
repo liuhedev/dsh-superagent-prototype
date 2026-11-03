@@ -52,6 +52,8 @@ export const SETUP_FIELDS: Readonly<Record<string, readonly string[]>> = { githu
 
 export interface Deployment extends Machine {
   repository: string
+  /** False when GitHub is disabled; the account fields are then empty. */
+  githubEnabled?: boolean
   github: { cli: string; login: string; noreply: string }
   feishu?: FeishuBot
 }
