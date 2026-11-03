@@ -388,6 +388,6 @@ a.dt-btn, a.dt-btn:hover { text-decoration: none; }
 
 .dt-dingtalk-groups { margin: 0; }
 .dt-dingtalk-groups > .dt-row { align-items: center; padding: 4px 0; border-radius: 0; }
-.dt-dingtalk-groups .dt-row-main { align-self: center; }
+.dt-dingtalk-groups .dt-row-main { align-self: center; font-size: 13px; line-height: 20px; font-weight: 400; }
 .dt-dingtalk-group-search { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--dsw-alias-border-l3); border-radius: 8px; }
 .dt-dingtalk-group-search > .dt-row { padding: 0; align-items: center; }
